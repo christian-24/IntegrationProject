@@ -37,7 +37,7 @@
                     i.Unit,
                     CASE
                         WHEN i.Unit = 'szt.' AND ISNULL(pc.NettPriceLogisticDiscount, 0) > 0 THEN pc.NettPriceLogisticDiscount
-                        WHEN ISNULL(pc.NettPriceDiscount, 0) > 0 THEN pc.NettPriceDiscount
+                        WHEN i.Unit != 'szt.' AND ISNULL(pc.NettPriceDiscount, 0) > 0 THEN pc.NettPriceDiscount
                         ELSE pc.NettPrice
                     END AS Price,
                     i.ShippingCost
