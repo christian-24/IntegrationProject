@@ -13,6 +13,7 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
     <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="8.1.4" />
     <PackageReference Include="System.Data.SqlClient" Version="4.9.0" />
+    <InternalsVisibleTo Include="IntegrationProject.Tests" />
   </ItemGroup>
 
 </Project>
