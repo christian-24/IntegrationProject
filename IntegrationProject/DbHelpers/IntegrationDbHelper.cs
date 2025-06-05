@@ -17,7 +17,9 @@ namespace IntegrationProject.DbHelpers
         public async Task InsertBatchAsync<T>(string sql, List<T> dataList, int batchSize = 500)
         {
             if (dataList is null || !dataList.Any())
+            {
                 return;
+            }
 
             using var connection = new SqlConnection(_connectionString);
             await connection.OpenAsync();
