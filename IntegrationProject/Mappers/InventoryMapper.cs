@@ -4,7 +4,7 @@ using IntegrationProject.Models;
 
 namespace IntegrationProject.Mappers
 {
-    public class InventoryMapper : ClassMap<Inventory>
+    public class InventoryMapper : ClassMap<InventoryModel>
     {
         public InventoryMapper()
         {

@@ -1,4 +1,5 @@
-﻿using IntegrationProject.Helpers;
+﻿using IntegrationProject.Dtos;
+using IntegrationProject.Helpers;
 using IntegrationProject.Results;
 using IntegrationProject.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -48,6 +49,44 @@ namespace IntegrationProject.Controllers
             var results = await _integrationService.ImportDataToLocalDb();
 
             return ImportResponseHelper.GetImportResponse(results);
+        }
+
+        /// <summary>
+        /// Returns product details based on the provided SKU.
+        /// 
+        /// This includes:
+        /// - Product name, EAN, category and image,
+        /// - Inventory quantity and unit,
+        /// - Net price based on discount rules (logistic or standard),
+        /// - Shipping cost.
+        /// 
+        /// The result is aggregated from the Products, Inventory, and Prices tables.
+        /// Pricing logic:
+        /// - If unit is "szt." and logistic discount > 0 → use it.
+        /// - Else if standard discount > 0 → use it.
+        /// - Else use base net price.
+        /// </summary>
+        /// <param name="sku">The unique product SKU identifier (from the warehouse).</param>
+        /// <returns>
+        /// HTTP 200 OK with product details, or 404 Not Found if the SKU does not exist.
+        /// </returns>
+        [HttpGet("{sku}")]
+        [SwaggerOperation(
+            Summary = "Gets product details by SKU",
+            Description = "Returns detailed product information including name, quantity, price and shipping cost by searching in Products, Inventory and Prices tables."
+        )]
+        [ProducesResponseType(typeof(ProductDetailsDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetProductBySku(string sku)
+        {
+            var result = await _integrationService.GetProductDetailBaseOnSku(sku);
+
+            if (result == null)
+            {
+                return NotFound($"No product found for SKU '{sku}'");
+            }
+
+            return Ok(result);
         }
     }
 }

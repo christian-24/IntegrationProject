@@ -2,7 +2,7 @@
 
 namespace IntegrationProject.Models
 {
-    public class Product
+    public class ProductModel
     {
         public int Id              { get; set; } // Unique product ID
         public string Sku          { get; set; } // SKU - unique warehouse ID

@@ -1,5 +1,7 @@
 ﻿using System.Data.SqlClient;
 using Dapper;
+using IntegrationProject.Dtos;
+using static IntegrationProject.Data.DapperQueries;
 
 namespace IntegrationProject.DbHelpers
 {
@@ -27,6 +29,13 @@ namespace IntegrationProject.DbHelpers
             }
 
             await transaction.CommitAsync();
+        }
+
+        public async Task<ProductDetailsDto?> GetProductDetailsBySkuAsync(string sku)
+        {
+            using var connection = new SqlConnection(_connectionString);
+
+            return await connection.QueryFirstOrDefaultAsync<ProductDetailsDto>(SelectQueries.GetProductDetailBaseOnSku, new { Sku = sku });
         }
     }
 }

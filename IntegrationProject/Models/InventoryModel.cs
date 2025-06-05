@@ -1,7 +1,7 @@
 ﻿
 namespace IntegrationProject.Models
 {
-    public class Inventory
+    public class InventoryModel
     {
         public int ProductId            { get; set; } // Unique ID of the product
         public string Unit              { get; set; } // Type of logistic unit the product is sold as

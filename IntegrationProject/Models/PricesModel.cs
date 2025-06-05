@@ -1,6 +1,6 @@
 ﻿namespace IntegrationProject.Models
 {
-    public class Prices
+    public class PricesModel
     {
         public string Sku                         { get; set; }
         public decimal? NettPrice                 { get; set; }

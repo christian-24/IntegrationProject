@@ -2,6 +2,7 @@
 using CsvHelper.Configuration;
 using IntegrationProject.Consts;
 using IntegrationProject.DbHelpers;
+using IntegrationProject.Dtos;
 using IntegrationProject.Enums;
 using IntegrationProject.Extensions;
 using IntegrationProject.Helpers;
@@ -37,6 +38,11 @@ namespace IntegrationProject.Services
             return results;
         }
 
+        internal async Task<ProductDetailsDto?> GetProductDetailBaseOnSku(string sku)
+        {
+            return await _integrationDbHelper.GetProductDetailsBySkuAsync(sku);
+        }
+
         /// <summary>
         /// Imports product data from the external API.
         /// 
@@ -58,7 +64,7 @@ namespace IntegrationProject.Services
 
         private async Task<ImportResult> ImportProducts()
         {
-            return await ImportStep<Product, ProductsMapper>(
+            return await ImportStep<ProductModel, ProductsMapper>(
                 stepName            : nameof(ImportProducts),
                 url                 : RequestConsts.ProductsRequest,
                 delimeterInFile     : ";",
@@ -86,7 +92,7 @@ namespace IntegrationProject.Services
         /// <returns>Import result including step name, status and detailed message.</returns>
         private async Task<ImportResult> ImportInventory()
         {
-            return await ImportStep<Inventory, InventoryMapper>(
+            return await ImportStep<InventoryModel, InventoryMapper>(
                 stepName            : nameof(ImportInventory),
                 url                 : RequestConsts.InventoryRequest,
                 delimeterInFile     : ",",
@@ -113,7 +119,7 @@ namespace IntegrationProject.Services
         /// <returns>Import result including step name, status and detailed message.</returns>
         private async Task<ImportResult> ImportPrices()
         {
-            return await ImportStep<Prices, PricesMapper>(
+            return await ImportStep<PricesModel, PricesMapper>(
                 stepName            : nameof(ImportPrices),
                 url                 : RequestConsts.PricesRequest,
                 delimeterInFile     : ",",

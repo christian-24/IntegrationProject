@@ -4,7 +4,7 @@ using IntegrationProject.Models;
 
 namespace IntegrationProject.Mappers
 {
-    public class ProductsMapper : ClassMap<Product>
+    public class ProductsMapper : ClassMap<ProductModel>
     {
         public ProductsMapper()
         {
