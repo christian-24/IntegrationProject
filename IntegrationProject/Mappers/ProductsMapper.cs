@@ -15,30 +15,21 @@ namespace IntegrationProject.Mappers
             Map(m => m.ProducerName).Name("producer_name");
             Map(m => m.Category).Name("category");
 
-            // Covert is wire to bool
             Map(m => m.IsWire).Convert(args =>
             {
-                var value = args.Row.GetField("is_wire");
-
-                return value?.Trim() == "1";
+                return args.Row.GetField("is_wire").ParseStringAsBool();
             });
 
             Map(m => m.Shipping).Name("shipping");
             
-            // Covert avaiable to bool
             Map(m => m.Available).Convert(args =>
             {
-                var value = args.Row.GetField("available");
-
-                return value?.Trim() == "1";
+                return args.Row.GetField("available").ParseStringAsBool();
             });
 
-            // Covert is vendor to bool
             Map(m => m.IsVendor).Convert(args =>
             {
-                var value = args.Row.GetField("is_vendor");
-
-                return value?.Trim() == "1";
+                return args.Row.GetField("is_vendor").ParseStringAsBool();
             });
 
             Map(m => m.DefaultImage).Name("default_image");

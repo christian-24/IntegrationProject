@@ -18,7 +18,6 @@ namespace IntegrationProject.Mappers
 
             Map(m => m.Manufacturer).Name("manufacturer_name");
 
-            // Is shipped in 24 hours. Data is in format (int)h
             Map(m => m.IsShippingIn24Hours).Convert(args =>
             {
                 return args.Row.GetField("shipping").IsStringAsHoursLessOrEqualExcepted(24);

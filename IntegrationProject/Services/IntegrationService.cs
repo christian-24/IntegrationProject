@@ -37,49 +37,91 @@ namespace IntegrationProject.Services
             return results;
         }
 
+        /// <summary>
+        /// Imports product data from the external API.
+        /// 
+        /// This process includes:
+        /// - Downloading the product CSV file from a configured URL,
+        /// - Saving the file locally,
+        /// - Parsing the CSV using a custom class map,
+        /// - Filtering out:
+        ///     • Products that are wires (IsWire = true),
+        ///     • Products that do not ship within 24 hours (Shipping field parsed to int ≤ 24),
+        /// - Inserting the filtered data into the local database using Dapper.
+        /// 
+        /// Assumes:
+        /// - The CSV uses semicolon (;) as a delimiter,
+        /// - The file contains a header row,
+        /// - Empty lines should be skipped during parsing.
+        /// </summary>
+        /// <returns>An <see cref="ImportResult"/> containing the step name, status, and result message.</returns>
+
         private async Task<ImportResult> ImportProducts()
         {
             return await ImportStep<Product, ProductsMapper>(
-                nameof(ImportProducts),
-                RequestConsts.ProductsRequest,
-                ";",
-                true,
-                true,
-                _fileHelper.GetLocalPathToSaveFile(FileNames.ProductFileName),
-                list => list
+                stepName            : nameof(ImportProducts),
+                url                 : RequestConsts.ProductsRequest,
+                delimeterInFile     : ";",
+                isWithHeadline      : true,
+                shouldSkipEmptyLine : true,
+                filePath            : _fileHelper.GetLocalPathToSaveFile(FileNames.ProductFileName),
+                filter              : list => list
                     .Where(p =>
-                        p.Shipping.IsStringAsHoursLessOrEqualExcepted(24) &&
-                        !(string.IsNullOrWhiteSpace(p.Name) && p.Name.ToLower().Contains("kabel ")))
+                        p.Shipping.IsStringAsHoursLessOrEqualExcepted(24) && !p.IsWire)
                     .ToList(),
-                InsertQueries.InsertProductsSql
+                sql                 : InsertQueries.InsertProductsSql
             );
         }
 
+        /// <summary>
+        /// Imports inventory data from the external API.
+        /// Downloads a CSV file, saves it locally, filters only inventory items that ship within ≤ 24h, 
+        /// parses the CSV and inserts valid entries into the database.
+        /// 
+        /// The filter ensures:
+        /// - Only rows with valid shipping time (≤ 24h) are persisted.
+        /// 
+        /// Empty lines and malformed shipping fields are skipped during parsing.
+        /// </summary>
+        /// <returns>Import result including step name, status and detailed message.</returns>
         private async Task<ImportResult> ImportInventory()
         {
             return await ImportStep<Inventory, InventoryMapper>(
-                nameof(ImportInventory),
-                RequestConsts.InventoryRequest,
-                ",",
-                true,
-                false,
-                _fileHelper.GetLocalPathToSaveFile(FileNames.InventoryFileName),
-                list => list.Where(i => i.IsShippingIn24Hours).ToList(),
-                InsertQueries.InsertInventorySql
+                stepName            : nameof(ImportInventory),
+                url                 : RequestConsts.InventoryRequest,
+                delimeterInFile     : ",",
+                isWithHeadline      : true,
+                shouldSkipEmptyLine : false,
+                filePath            : _fileHelper.GetLocalPathToSaveFile(FileNames.InventoryFileName),
+                filter              : list => list.Where(i => i.IsShippingIn24Hours).ToList(),
+                sql                 : InsertQueries.InsertInventorySql
             );
         }
 
+        /// <summary>
+        /// Imports pricing data from the external API.
+        /// Downloads a CSV file (which may not have headers), saves it locally,
+        /// parses pricing data including base price, discounted price, and logistic unit price, 
+        /// and inserts it into the database without filtering.
+        /// 
+        /// Assumes:
+        /// - The file contains no header row.
+        /// - Empty lines are skipped, and all numeric conversions are safely handled.
+        /// 
+        /// If no prices are found, the operation returns a 'NoData' status.
+        /// </summary>
+        /// <returns>Import result including step name, status and detailed message.</returns>
         private async Task<ImportResult> ImportPrices()
         {
             return await ImportStep<Prices, PricesMapper>(
-                nameof(ImportPrices),
-                RequestConsts.PricesRequest,
-                ",",
-                false,
-                false,
-                _fileHelper.GetLocalPathToSaveFile(FileNames.PricesFileName),
-                null,
-                InsertQueries.InsertPricesSql
+                stepName            : nameof(ImportPrices),
+                url                 : RequestConsts.PricesRequest,
+                delimeterInFile     : ",",
+                isWithHeadline      : false,
+                shouldSkipEmptyLine : false,
+                filePath            : _fileHelper.GetLocalPathToSaveFile(FileNames.PricesFileName),
+                filter              : null,
+                sql                 : InsertQueries.InsertPricesSql
             );
         }
 
